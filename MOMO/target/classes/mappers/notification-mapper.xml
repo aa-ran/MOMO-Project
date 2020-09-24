@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="notificationMapper">
+	
+	<resultMap type="Notification" id="notificationResultSet">
+		<id property="notId" column="NOT_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="notContent" column="NOT_CONTENT" />
+		<result property="notCreateDate" column="NOT_CREATE_DATE" />
+		<result property="qnaId" column="QNA_ID"/>
+	</resultMap>
+	
+	<!-- 게시글 갯수 구하는 쿼리문 -->
+	<select id="getListCount" resultType="_int">
+		SELECT COUNT(*) FROM NOTIFICATION
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<!-- 리스트 구하는 쿼리문 -->
+	<select id="selectNotiList" resultMap="notificationResultSet">
+		SELECT * FROM NOTIFICATION
+		WHERE USER_ID = #{userId}
+		ORDER BY NOT_ID DESC
+	</select>
+	
+	<!-- 알림 삽입하는 쿼리문 -->
+	<insert id="insertNoti" parameterType="Notification">
+		INSERT INTO NOTIFICATION
+		VALUES(NOT_SEQ.NEXTVAL,#{userId},#{notContent},SYSDATE,NULL)
+	</insert>
+	
+	<!-- QNA 알람 삽입하는 쿼리문 -->
+	<insert id="insertNotiQna" parameterType="Notification">
+		INSERT INTO NOTIFICATION
+		VALUES(NOT_SEQ.NEXTVAL,#{userId},#{notContent},SYSDATE,#{qnaId})
+	</insert>
+	
+	<!-- 알람 삭제하는 쿼리문 -->
+	<delete id="deleteNoti">
+		DELETE FROM NOTIFICATION
+		WHERE NOT_ID = #{notId}
+	</delete>
+	
+	<!-- 알람 하나 선택하는 쿼리문 -->
+	<select id="selectNotiOne" resultMap="notificationResultSet">
+		SELECT * FROM NOTIFICATION
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<!-- 알람 진짜 하나 선택하는 쿼리문 -->
+	<select id="selectNotiOnee" resultMap="notificationResultSet">
+		SELECT * FROM NOTIFICATION 
+		WHERE NOT_ID = #{notId}
+	</select>
+</mapper>

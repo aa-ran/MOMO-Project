@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="weMapper">
+  <resultMap type="We" id="weResultSet">
+   <id property="wId" column="W_ID"/>
+   <result property="wWriter" column="W_WRITER"/>
+   <result property="wTitle" column="W_TITLE"/>
+   <result property="wContent" column="W_CONTENT"/>
+   <result property="wCategory" column="W_CATEGORY"/>
+   <result property="wCreateDate" column="W_CREATE_DATE"/>
+   <result property="wModifyDate" column="W_MODIFY_DATE"/>
+   <result property="teamMember" column="TEAM_MEMBER"/>
+   <result property="wDeadline" column="W_DEADLINE"/>
+   <result property="wStatus" column="W_STATUS"/>
+   <result property="wCount" column="W_COUNT"/>
+   <result property="wFileName" column="W_FILE_NAME"/>
+   <result property="wFilePath" column="W_FILE_PATH"/>
+   <result property="wLike" column="W_LIKE"/>
+   <result property="wDislike" column="W_DISLIKE"/>
+   <result property="wTeamName" column="W_TEAM_NAME"/>
+  </resultMap>
+  
+  <!-- 전체 게시글 수 구하기  -->
+  <select id="allListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM WE
+  </select>
+  
+  <!-- 게시글 리스트 쿼리 -->
+  <select id="selectWeList" resultMap="weResultSet" >
+		SELECT * FROM WE
+		ORDER BY W_ID DESC
+  </select>
+  
+  <!-- 게시글 등록 -->
+	<insert id="insertWe" parameterType="We">
+		INSERT INTO WE
+		VALUES( WE_SEQ.NEXTVAL,#{wWriter}, #{wTitle},#{wContent}, #{wCategory}, SYSDATE, NULL, #{teamMember}, #{wDeadline}, 'Y' , 0, #{wFileName}, #{wFilePath}, 0,0,#{wTeamName})
+	</insert>
+	
+	<!-- 게시글 상세 조회 -->
+	<select id="selectWeOne" parameterType="_int" resultMap="weResultSet">
+		SELECT * FROM WE
+		WHERE W_ID = #{wId}
+	</select>
+	
+	<!-- 조회수 증가 쿼리 -->
+	<update id="countPlus" parameterType="_int">
+		UPDATE WE SET W_COUNT = W_COUNT + 1
+		WHERE W_ID = #{wId}
+	</update>	
+	
+	<!-- 게시글 수정 쿼리 -->
+  	<update id="updateWe" parameterType="We">
+		UPDATE WE 
+		SET W_TITLE=#{wTitle}, W_CONTENT= #{wContent}, W_CATEGORY=#{wCategory}, W_MODIFY_DATE=SYSDATE, TEAM_MEMBER=#{teamMember}, W_DEADLINE=#{wDeadline}, W_FILE_NAME=#{wFileName}, W_FILE_PATH=#{wFilePath}, W_TEAM_NAME=#{wTeamName}
+		WHERE W_ID=#{wId}
+	</update>
+	
+	<!-- 게시글 삭제 쿼리 -->
+	<delete id="deleteWe" parameterType="_int">
+		DELETE FROM WE
+		WHERE W_ID=#{wId}
+	</delete>
+	
+	<!-- 조회수 쿼리 -->
+	<update id="weCount" parameterType="_int">
+	UPDATE WE
+	SET W_COUNT = W_COUNT + 1
+	WHERE W_ID = #{wId}
+	</update>
+	
+	<!-- 게시글 검색 쿼리 -->
+	<select id="searchWeList" parameterType="Search"
+		resultMap="weResultSet">
+		SELECT * FROM WE
+		<where>
+			<choose>
+				<when test="searchCondition == 'wTeamName'">
+					W_TEAM_NAME LIKE '%' || #{searchValue } || '%'
+				</when>
+				<when test="searchCondition == 'wTitle'">
+					W_TITLE LIKE '%' || #{searchValue } || '%'
+				</when>
+				<when test="searchCondition == 'wWriter'">
+					W_WRITER LIKE '%' || #{searchValue } || '%'
+				</when>
+				<otherwise>
+					AND (W_TEAM_NAME LIKE '%' || #{searchValue } || '%'
+					OR W_TITLE LIKE '%' || #{searchValue } || '%'
+					OR W_WRITER LIKE '%' || #{searchValue } || '%')
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY W_CREATE_DATE DESC
+	</select>
+	
+  <!-- Category별 게시글 수 구하기  -->
+  <select id="allListCategoryCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM WE
+		WHERE W_CATEGORY=#{category}
+  </select>
+  
+  <!-- 카테고리별 ㄱ시글 검색 쿼리 -->
+	<select id="searchWeCategoryList" parameterType="String"
+		resultMap="weResultSet">
+		SELECT * FROM WE
+		WHERE W_CATEGORY=#{category}
+		ORDER BY W_CREATE_DATE DESC
+	</select>
+	
+  <!-- search한 게시글 갯수 세기   -->
+  <select id="allListSearchCount" parameterType="Search" resultType="_int">
+		SELECT COUNT(*) FROM WE
+		<where>
+			<choose>
+				<when test="searchCondition == 'wTeamName'">
+					W_TEAM_NAME LIKE '%' || #{searchValue } || '%'
+				</when>
+				<when test="searchCondition == 'wTitle'">
+					W_TITLE LIKE '%' || #{searchValue } || '%'
+				</when>
+				<when test="searchCondition == 'wWriter'">
+					W_WRITER LIKE '%' || #{searchValue } || '%'
+				</when>
+				<otherwise>
+					AND (W_TEAM_NAME LIKE '%' || #{searchValue } || '%'
+					OR W_TITLE LIKE '%' || #{searchValue } || '%'
+					OR W_WRITER LIKE '%' || #{searchValue } || '%')
+				</otherwise>
+			</choose>
+		</where>
+  </select>
+  
+  	<!-- 기대되는 팀 리스트 조회하는 쿼리 -->
+  	<!-- 부등호를 태그라고 인식해서 에러발생, 해결 방법 : <![CDATA[내용]]> -->
+  	<select id="selectHighTeamList" resultMap="weResultSet">
+  		SELECT * FROM 
+		(SELECT * FROM WE ORDER BY W_COUNT DESC)
+		<![CDATA[WHERE ROWNUM <= 6]]>
+  	</select>
+  	
+    <!-- 카테고리가 겹치는 리스트 조회 (최신순 정렬)-->
+  	<select id="selectInterestTeam" resultMap="weResultSet">
+  		SELECT * FROM
+  		(SELECT * FROM WE ORDER BY W_CREATE_DATE DESC)
+  		WHERE W_CATEGORY = #{wCategory} AND
+  		<![CDATA[ROWNUM <= 3]]>
+  	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+

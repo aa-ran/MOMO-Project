@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+   <!-- Root Context: defines shared resources visible to all other web components -->
+
+   <!-- 1.DataSource 등록 -->
+   <!-- DataSource는 서버 구동시 동시에 연결이 되어야 하며 연결 정보 설정시 root-context 제일 위쪽에 작성 -->
+   <bean id="dataSource"
+      class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+      <property name="driverClassName"
+         value="oracle.jdbc.driver.OracleDriver" />
+      <property name="url"
+         value="jdbc:oracle:thin:@localhost:1521:xe" />
+      <property name="username" value="momo" />
+      <property name="password" value="momo" />
+   </bean>
+
+   <!-- 트랜잭션 처리를 위한 트랜잭션 매니저 추가 -->
+   <!-- 트랜잭션은 DB 관련 설정이므로 root-context.xml에 이어 작성 -->
+
+   <!-- 트랜잭션 처리 (commit, rollback) 1.JDBC : Connection 객체 (conn) 2.mybatis 
+      : SqlSession 객체 3.Spring : TransactionManager 객체 -->
+   <bean id="transactionManager"
+      class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource" />
+   </bean>
+
+   <!-- namespace에서 tx를 체크후 작성 / 어노테이션을 사용하기 위해 사용 -->
+   <tx:annotation-driven />
+
+   <!-- Transaction 추가 -->
+   <!-- Exception(예외) 발생시 rollback하라는 트랜잭션 -->
+   <!-- <tx:attributes>의 자식 엘리먼트로 <tx:method>를 사용하여 트랜잭션을 적용할 메소드를 지정할 수 있음 
+      1.read-only : 읽기 전용으로 처리, 트랜잭션 관리 대상에서 제외 2.name : 메소드 이름 3.no-rollback-for 
+      : 트랜잭션을 롤백하지 않을 예외 지정 4.rollback-for : 트랜잭션을 롤백할 예외 지정 -->
+   <tx:advice id="txAdvice"
+      transaction-manager="transactionManager">
+      <tx:attributes>
+         <tx:method name="select*" read-only="true" />
+         <tx:method name="insert*" rollback-for="Exception" />
+         <tx:method name="update*" rollback-for="Exception" />
+         <tx:method name="delete*" rollback-for="Exception" />
+      </tx:attributes>
+   </tx:advice>
+
+   <!-- mybatis 이용하기 위한 세팅 -->
+   <bean id="sqlSession"
+      class="org.mybatis.spring.SqlSessionFactoryBean">
+      <property name="configLocation"
+         value="classpath:mybatis-config.xml" />
+      <property name="dataSource" ref="dataSource" />
+   </bean>
+
+   <bean id="sqlSessionTemplate"
+      class="org.mybatis.spring.SqlSessionTemplate">
+      <constructor-arg ref="sqlSession" />
+   </bean>
+
+   <!-- 트랜잭션을 위한 AOP 추가 -->
+   <aop:config proxy-target-class="true">
+      <aop:pointcut expression="execution(* com.momo.spring..*Impl.*(..))"
+         id="serviceMethod" />
+      <aop:advisor id="transactionAdvisor"
+         pointcut-ref="serviceMethod" advice-ref="txAdvice" />
+   </aop:config>
+
+
+   <!-- AOP XML 방식 -->
+   <!-- <bean id="log" class="com.kh.spring.common.LogAdvice"></bean> -->
+   <!-- <bean id="log4j" class="com.kh.spring.common.Log4jAdvice"></bean> -->
+
+   <!-- 시작점 -->
+   <!-- <aop:config> <aop:pointcut expression="execution(* com.kh.spring..*Impl.*(..))" 
+      id="allPointcut" /> Impl로 끝나는 클래스의 모든 메소드 <aop:pointcut expression="execution(int 
+      com.kh.spring..*Impl.*(..))" id="returnIntPointcut" /> 반환형이 int인 메소드에서 동작하는 
+      pointcut 설정 <aop:aspect ref="log"> before : 실행하기 전에 출력 / after : 실행한 후에 출력 
+      / around : 앞 & 뒤 모두 출력 <aop:around method="aroundLog" pointcut-ref="allPointcut" 
+      /> <aop:before method="printLog" pointcut-ref="allPointcut" /> <aop:before 
+      method="printTransactionLogin" pointcut-ref="returnIntPointcut"/> </aop:aspect> 
+      </aop:config> -->
+   <!-- spring AOP는 클라이언트가 가지고 있는 관심에 해당하는 비즈니스 메소드를 호출할 때 횡단 관심에 해당하는 메소드를 
+      적절하게 실행 -->
+
+   <!-- pointcut 표현식 패키지.클래스.메소드.매개변수 1.* org.kh.member.model.service.*.*(..) 
+      : service 패키지에 있는 모든 클래스와 모든 메소드를 선택 (매개변수는 0개 이상) 2.* org.kh.member.medel.service..*.*(..) 
+      : service 패키지이 및 하위 패키지에 있는 모든 클래스와 모든 메소드를 선택 (매개변수는 0개 이상) 3.* org.kh.member.model.service..*.*() 
+      : service 패키지 및 하위 패키지에 있는 모든 클래스 및 모든 메소드 (매개변수X) 4.* org.kh.member.model.service..*.*(*) 
+      : service 패키지 및 하위 패키지에 있는 모든 클래스 및 모든 메소드 (매개변수 한 개) 5.* org.kh.member.model.service..*.*(Integer,..) 
+      : service 패키지 및 하위 패키지에 있는 모든 클래스 및 모든 메소드 (매개변수가 한 개이상이고 첫번째 파라미터(매개변수)는 
+      정수) 6. int org.kh.member.model.service..*.*(Integer,..) : service 패키지 및 하위 
+      패키지에 있는 모든 클래스 및 모든 메소드 (매개변수가 한 개이상이고 첫번째 파라미터(매개변수)는 정수, 리턴타입은 int) 7. 
+      int com.kh.spring..*Impl.*(..) : spring패키지 및 하위 패키지에 Impl로 끝나는 클래스의 모든 메소드(매개변수 
+      0개이상) -->
+
+   <!-- 파일 업로드 관련 Bean 등록 / multipartResolver -->
+   <bean id="multipartResolver"
+      class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <property name="maxUploadSize" value="100000000" />
+      <property name="maxInMemorySize" value="100000000" />
+   </bean>
+
+   <!-- 1.maxUploadSize : 한 요청당 업로드가 허용되는 최대용량을 바이트 단위로 설정 @ -1 : 제한이 없다는 뜻, 
+      프로퍼티를 저장하지 않을 때 기본 값 2.maxInMemorySize : 디스크에 저장하지 않고 메모리에 유지하도록 허용하는 바이트 
+      단위 최대용량 설정 @@사이즈가 이보다 클 경우 이 사이즈 이상의 데이터는 파일에 저장, 기본값은 10240 바이트 -->
+      
+   <!-- email Beans 등록 -->
+   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+	    <property name="host" value="smtp.gmail.com" />
+	    <property name="port" value="587" />
+	    <property name="username" value="aran0503@gmail.com" />
+	    <property name="password" value="imyouja1!2@" />
+	    <property name="javaMailProperties">
+	    <props>
+	      <prop key="mail.smtp.auth">true</prop>
+	      <prop key="mail.smtp.starttls.enable">true</prop>
+	    </props>
+	    </property>
+  </bean>
+</beans>

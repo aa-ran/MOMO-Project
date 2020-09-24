@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="qnaMapper">
+
+	<resultMap type="QNA" id="qnaResultSet">
+		<id property="qnaId" column="QNA_ID" />
+		<result property="qUserId" column="Q_USER_ID" />
+		<result property="aUserId" column="A_USER_ID" />
+		<result property="q" column="Q" />
+		<result property="a" column="A" />
+	</resultMap>
+	
+	<!-- qna 삽입 쿼리문 -->
+	<insert id="insertQna" parameterType="QNA">
+		INSERT INTO QNA
+		VALUES(QNA_SEQ.NEXTVAL, #{qUserId}, #{aUserId}, #{q}, 'X')
+	</insert>
+	
+	<!-- qna 선택하는 쿼리문 -->
+	<select id="selectQnaOne" resultMap="qnaResultSet">
+		SELECT * FROM QNA
+		WHERE QNA_ID = #{qnaId}
+	</select>
+	
+	<!-- qna 업데이트하는 쿼리문 -->
+	<update id="updateQna" parameterType="QNA">
+		UPDATE QNA SET A = #{a}
+		WHERE QNA_ID = #{qnaId} 
+	</update>
+	
+	<!-- 마지막 qna id 리턴하는 쿼리문 -->
+	<select id="selectLastQnaId" resultType="_int">
+		SELECT QNA_ID FROM
+		(SELECT QNA_ID FROM QNA ORDER BY QNA_ID DESC)
+		<![CDATA[WHERE ROWNUM <= 1]]>
+		
+	</select>
+
+</mapper>

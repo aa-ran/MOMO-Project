@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="blacklistMapper">
+<resultMap type="BlackList" id="blackListResultSet">
+   <id property="userId" column="USER_ID"/>
+   <result property="reason" column="REASON"/>
+</resultMap>
+<!--    전체조회 -->
+   <select id="selectList" resultMap="blackListResultSet">
+    SELECT * FROM BLACKLIST 
+   </select>
+   
+   
+  <!--  블랙리스트 추가 -->
+   <insert id="insertBlackList" parameterType="BlackList">
+    {call
+        declare
+        begin
+            insert into blacklist values(#{userId}, #{reason});
+            update member set m_status = 'N' where user_Id = #{userId};
+        end
+    }
+    </insert>
+  
+  
+  <!-- 블랙리스트 삭제 -->
+     <delete id="deleteBlackList" parameterType="String">
+    {call
+        declare
+        begin
+            delete from blacklist where user_id = #{userId};
+            update member set m_status = 'Y' where user_Id = #{userId};
+        end
+    }
+    </delete>
+</mapper>

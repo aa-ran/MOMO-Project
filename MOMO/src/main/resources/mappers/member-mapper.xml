@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ <mapper namespace="memberMapper">
+	<resultMap type="Member" id="memberResultSet">
+		<id property="userId" column="USER_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="userName" column="USER_NAME" />
+		<result property="nickName" column="NICK_NAME" />
+		<result property="gender" column="GENDER" />
+		<result property="birth" column="BIRTH" />
+		<result property="address" column="ADDRESS" />
+		<result property="phone" column="PHONE" />
+		<result property="email" column="EMAIL" />
+		<result property="interest" column="INTEREST" />
+		<result property="mStatus" column="M_STATUS" />
+	</resultMap>
+	
+	<!-- 전체조회 -->
+	<select id="selectList" resultMap="memberResultSet">
+	SELECT * FROM MEMBER
+	WHERE M_STATUS = 'Y'
+	</select>
+	
+	<!-- 로그인 -->
+	<select id="login" resultMap="memberResultSet">
+	  SELECT * FROM MEMBER
+	  WHERE USER_ID = #{userId} AND PASSWORD = #{password}
+	  AND M_STATUS = 'Y'
+  	</select>
+  	
+	<!-- 한명 선택  -->
+	<select id="selectOne" resultMap="memberResultSet">
+	  SELECT * FROM MEMBER
+	  WHERE USER_ID = #{userId}
+  	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="insertMember" parameterType="Member">
+		INSERT INTO MEMBER
+		VALUES( #{userId}, #{password}, #{userName},#{nickName}, #{gender}, #{birth}, #{address}, #{phone},#{email}, #{interest}, 'Y')
+	</insert>
+	
+	<!-- 아이디 찾는 쿼리문 -->
+  	<select id="findId" parameterType="String" resultMap="memberResultSet">
+  		SELECT * FROM MEMBER WHERE EMAIL = #{email}
+  	</select>
+  	
+  	<!-- 비밀번호 찾는 쿼리문 -->
+  	<select id="findPwd" resultMap="memberResultSet">
+  		SELECT * FROM MEMBER
+  		WHERE USER_ID = #{userId}
+  		AND EMAIL = #{email}
+  	</select>
+	
+	<!-- ★회원정보 수정 쿼리문 -->
+	<update id="updateMember" parameterType="Member">
+		UPDATE MEMBER SET BIRTH = #{birth}, GENDER = #{gender}, NICK_NAME = #{nickName}, PHONE = #{phone}, EMAIL = #{email}, ADDRESS = #{address}
+		WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- ★회원 탈퇴하는 쿼리문 -->
+	<delete id="deleteMember" parameterType="Member">
+		DELETE FROM MEMBER
+		WHERE USER_ID = #{userId} AND PASSWORD = #{password}
+	</delete>
+	
+	<!-- 아이디를 넘겨서 검색할 때 검색한 갯수를 리턴 -->
+	<select id="checkIdDup" parameterType="string" resultType="_int">
+	
+		SELECT COUNT(*) FROM MEMBER WHERE USER_ID = #{userId}		
+	</select>
+	
+	<!-- 우리 팀할래 팀원정보 보는 쿼리문 -->
+	<select id="selectJoinMember" parameterType="String" resultMap="memberResultSet">
+		SELECT * FROM MEMBER
+		WHERE USER_ID = #{userId}
+	</select>
+	
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+<settings>
+		<setting name="jdbcTypeForNull" value="NULL"></setting>
+		<!-- 
+			만약 null로 데이터가 전달되었다면
+			빈칸이 아닌 "NULL"로 인식하라고 설정
+			value 설정 시 NULL은 반드시 대문자로 작성
+			(소문자인 경우 지정되지 않은 실제 null로 인식되어 에러 발생)
+		 -->
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.momo.spring.member.domain.Member" alias="Member"/>
+		<typeAlias type="com.momo.spring.member.domain.Mail" alias="Mail"/>
+		<typeAlias type="com.momo.spring.notice.domain.Notice" alias="Notice"/>
+		<typeAlias type="com.momo.spring.place.domain.Place" alias="Place"/>
+		<typeAlias type="com.momo.spring.me.domain.Me" alias="Me"/>
+		<typeAlias type="com.momo.spring.career.domain.Career" alias="Career"/>
+		<typeAlias type="com.momo.spring.placeReservation.domain.PlaceReservation" alias="PlaceReservation"/>
+		<typeAlias type="com.momo.spring.placeReservation.domain.PageInfo" alias="PageInfo"/>
+		<typeAlias type="com.momo.spring.common.Pagination" alias="Pagination"/>
+		<typeAlias type="com.momo.spring.message.domain.Message" alias="Message"/>
+		<typeAlias type="com.momo.spring.servicecenter.domain.ServiceCenter" alias="ServiceCenter" />
+		<typeAlias type="com.momo.spring.we.domain.We" alias="We"/>
+		<typeAlias type="com.momo.spring.message.domain.Message" alias="Message"/>
+		<typeAlias type="com.momo.spring.blacklist.domain.BlackList" alias="BlackList"/>
+		<typeAlias type="com.momo.spring.meComment.domain.MeComment" alias="MeComment"/>
+		<typeAlias type="com.momo.spring.teamJoin.domain.TeamJoin" alias="TeamJoin"/>
+		<typeAlias type="com.momo.spring.common.Search" alias="Search"/>
+		<typeAlias type="com.momo.spring.qna.domain.Qna" alias="Qna"/>
+		<typeAlias type="com.momo.spring.notification.domain.Notification" alias="Notification"/>
+		<typeAlias type="com.momo.spring.common.PlaceSearch" alias="PlaceSearch"/>
+		<typeAlias type="com.momo.spring.wecomment.domain.WeComment" alias="WeComment"/>
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="mappers/member-mapper.xml"/>
+		<mapper resource="mappers/notice-mapper.xml"/>
+		<mapper resource="mappers/place-mapper.xml"/>
+		<mapper resource="mappers/me-mapper.xml"/>
+		<mapper resource="mappers/career-mapper.xml"/>
+		<mapper resource="mappers/placeReservation-mapper.xml"/>
+		<mapper resource="mappers/message-mapper.xml"/>
+		<mapper resource="mappers/serviceCenter-mapper.xml"/>
+		<mapper resource="mappers/we-mapper.xml"/>
+		<mapper resource="mappers/message-mapper.xml"/>
+		<mapper resource="mappers/blackList-mapper.xml"/>
+		<mapper resource="mappers/meComment-mapper.xml"/>
+		<mapper resource="mappers/teamJoin-mapper.xml"/>
+		<mapper resource="mappers/qna-mapper.xml"/>
+		<mapper resource="mappers/notification-mapper.xml"/>
+		<mapper resource="mappers/weComment-mapper.xml"/>
+	</mappers>
+	
+</configuration>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="placeMapper">
+
+	<resultMap type="Place" id="placeResultSet">
+		<id property="pNo" column="P_NO" />
+		<result property="pName" column="P_NAME" />
+		<result property="pTime" column="P_TIME" />
+		<result property="pOption" column="P_OPTION" />
+		<result property="pPrice" column="P_PRICE" />
+		<result property="pFileName" column="P_FILE_NAME" />
+		<result property="pFilePath" column="P_FILE_PATH" />
+		<result property="pAcceptNum" column="P_ACCEPT_NUM" />
+		<result property="pAddress" column="P_ADDRESS" />
+		<result property="pStatus" column="P_STATUS" />
+		<result property="pRegDate" column="P_REG_DATE" />
+	</resultMap>
+	
+	<!-- 장소 조회 쿼리 -->
+	<select id="selectList" parameterType="Place" resultMap="placeResultSet">
+	SELECT * FROM PLACE
+	ORDER BY P_NO DESC
+	</select>
+	
+	<!-- 장소 상세조회 쿼리 -->
+	<select id="selectOne" parameterType="_int" resultMap="placeResultSet">
+	SELECT * FROM PLACE
+	WHERE P_NO = #{pNo}
+	</select>
+	
+	<!-- 장소 등록 쿼리 -->
+	<insert id="insertPlace" parameterType="place">
+	INSERT INTO PLACE
+	VALUES(PLACE_SEQ.NEXTVAL, #{pName}, #{pTime}, #{pOption}, #{pPrice}, #{pFileName}, #{pFilePath}, #{pAcceptNum}, #{pAddress}, DEFAULT, SYSDATE) 
+	</insert>
+	
+	<!-- 장소 삭제 쿼리 -->
+   <delete id="deletePlace" parameterType="_int">   	
+   DELETE FROM Place
+   	WHERE P_NO = #{pNo}
+   </delete>
+   
+   <!-- 장소 수정 쿼리 -->
+   <update id="updatePlace" parameterType="Place">
+   UPDATE PLACE SET
+   P_NAME = #{pName}, P_ADDRESS = #{pAddress}, P_ACCEPT_NUM = #{pAcceptNum}, P_PRICE = #{pPrice}, P_TIME = #{pTime}, P_OPTION = #{pOption}
+   ,P_FILE_NAME = #{pFileName}, P_FILE_PATH = #{pFilePath}
+   WHERE P_NO = #{pNo}
+   </update>
+   
+   <!-- 최신 목록 조회 쿼리 -->
+   <select id="selectNewPlace" resultMap= "placeResultSet">
+	   	SELECT * FROM 
+	   	(SELECT * FROM PLACE ORDER BY P_NO DESC)
+	   	<![CDATA[WHERE ROWNUM <= 3]]>
+   </select>
+
+	<!-- 장소 검색 쿼리 -->
+	<select id="searchPlace" parameterType="PlaceSearch"
+		resultMap="placeResultSet">
+		SELECT * FROM PLACE
+		<where>
+			<choose>
+				<when test="pTime != 'null'">P_TIME = #{pTime} </when>
+			</choose>
+			<choose>
+				<when test="pAcceptNum != 0"> AND P_ACCEPT_NUM >= #{pAcceptNum} </when>
+			</choose>
+			<choose>
+				<when test="pPrice!=null"> AND P_PRICE BETWEEN 0 AND #{pPrice} </when>
+				<otherwise>AND P_PRICE BETWEEN 0 AND 100000000000000000000
+				</otherwise>
+			</choose>
+
+		</where>
+
+	</select>
+</mapper>

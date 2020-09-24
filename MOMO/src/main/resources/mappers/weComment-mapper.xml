@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="weCommentMapper">
+<resultMap type="WeComment" id="weCommentResultSet">
+   <id property="wcId" column="WC_ID"/>
+   <result property="wcWriter" column="WC_WRITER"/>
+   <result property="wId" column="W_ID"/>
+   <result property="wcContent" column="WC_CONTENT"/>
+   <result property="wcCreateDate" column="WC_CREATE_DATE"/>
+</resultMap>
+
+	<!-- 댓글 리스트 쿼리 -->
+	<select id="selectList" resultMap="weCommentResultSet">
+		SELECT * FROM WE_COMMENT
+		WHERE W_ID = #{wId}
+		ORDER BY WC_CREATE_DATE DESC
+	</select>
+
+	<!-- 댓글 작성 쿼리 -->
+	<insert id="insertComment" parameterType="WeComment">
+		INSERT INTO WE_COMMENT
+		VALUES
+		(WC_SEQ.NEXTVAL, #{wcWriter}, #{wId}, #{wcContent}, SYSDATE)
+	</insert>
+	
+	<!-- 댓글 수정 쿼리 -->
+	<update id="updateComment" parameterType="WeComment">
+		UPDATE WE_COMMENT SET
+		WC_CONTENT = #{wcContent}, WC_CREATE_DATE = SYSDATE
+		WHERE WC_ID = #{wcId}
+	</update>
+	
+	<!-- 댓글 삭제 쿼리 -->
+	<delete id="deleteComment" parameterType="_int">
+		DELETE FROM WE_COMMENT
+		WHERE WC_ID = #{wcId}
+	</delete>
+</mapper>

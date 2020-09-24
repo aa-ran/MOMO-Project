@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="placeReservationMapper">
+
+	<resultMap type="PlaceReservation" id="placeReservationResultSet">
+		<id property="prId" column="PR_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="pNo" column="P_NO" />
+		<result property="prDate" column="PR_DATE" />
+		<result property="pName" column="P_NAME" />
+		<result property="pOption" column="P_OPTION" />
+		<result property="pTime" column="P_TIME" />
+	</resultMap>
+	
+	<select id="selectPrList" parameterType="String" resultMap="placeReservationResultSet">
+		SELECT * FROM PLACE_RESERVATION
+		WHERE USER_ID = #{userId}
+		ORDER BY PR_DATE DESC
+	</select>
+	
+	<select id="getListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM PLACE_RESERVATION
+		WHERE USER_ID = #{userId}
+	</select>
+</mapper>

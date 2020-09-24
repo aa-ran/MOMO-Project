@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ <mapper namespace="serviceCenterMapper">
+   
+    <resultMap type="ServiceCenter" id="serviceCenterResultSet">
+   <id property="sId" column="S_ID"/>
+   <result property = "userId" column="USER_ID"/>
+   <result property = "sTitle" column="S_TITLE"/>
+   <result property = "sContent" column="S_CONTENT"/>
+   </resultMap>
+   
+   <insert id="insertsvCenter" parameterType="ServiceCenter">
+   INSERT INTO SERVICE_CENTER 
+   VALUES(SERVICE_SEQ.NEXTVAL, #{userId}, #{sTitle}, #{sContent})
+   </insert>
+   <!-- 고객센터전체조회 -->
+   <select id="selectList" resultMap="serviceCenterResultSet">
+   SELECT * FROM SERVICE_CENTER
+   ORDER BY S_ID DESC
+   </select>
+  
+  
+   <!-- 고객센터 상세조회 -->
+    <select id="selectOne" resultMap="serviceCenterResultSet" parameterType="_int">
+    SELECT * 
+    FROM SERVICE_CENTER 
+    WHERE S_ID = #{sId}
+    </select>
+    
+    <!-- 고객센터 삭제 -->
+    <delete id="deleteCenter" parameterType="_int">
+    DELETE FROM SERVICE_CENTER
+    WHERE S_ID=#{sId}
+    </delete>
+</mapper>

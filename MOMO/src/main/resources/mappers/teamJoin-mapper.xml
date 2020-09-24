@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="teamJoinMapper">
+	<resultMap type="TeamJoin" id="teamJoinResultSet">
+		<id property="tId" column="T_ID" />
+		<result property="fromId" column="FROM_ID" />
+		<result property="toId" column="TO_ID" />
+		<result property="acceptYN" column="ACCEPT_YN" />
+		<result property="acceptDate" column="ACCEPT_DATE " />
+		<result property="rejectDate" column="REJECT_DATE" />
+		<result property="teamName" column="TEAM_NAME" />
+	</resultMap>
+	
+	<!-- 가입한 팀원 한명 선택하는 쿼리문 -->
+	<select id="selectOne" resultMap="teamJoinResultSet">
+		SELECT * FROM TEAM_JOIN
+		WHERE FROM_ID = #{fromId} 
+		AND T_ID = #{tId}
+	</select>
+	
+	<!-- 우리팀할래 지원한 팀원 리스트  -->
+	<select id="selectJoinList" parameterType="TeamJoin" resultMap="teamJoinResultSet">
+		SELECT * FROM TEAM_JOIN
+		WHERE T_ID = #{tId} AND ACCEPT_YN ='Y'
+	</select>
+	
+	<!-- 우리팀할래 지원 -->
+	<insert id="insertTeamJoin" parameterType="TeamJoin">
+		INSERT INTO TEAM_JOIN
+		VALUES (#{tId}, #{fromId}, #{toId}, 'Y', SYSDATE, SYSDATE, #{teamName})
+	</insert>
+	
+	<!-- 팀원 수 구하는 쿼리문 -->
+	<select id="joinCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM TEAM_JOIN
+		WHERE T_ID = #{tId}
+	</select>
+	
+	<!-- 팀 탈퇴하는 쿼리문 -->
+	<delete id="deleteJoin">
+		DELETE FROM TEAM_JOIN
+		WHERE FROM_ID = #{fromId}
+		AND T_ID = #{tId}
+	</delete>
+	
+</mapper>

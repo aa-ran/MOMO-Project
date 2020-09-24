@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="noticeMapper">
+
+	<resultMap type="Notice" id="noticeResultSet">
+		<id property="nId" column="N_ID" />
+		<result property="nWriter" column="N_WRITER" />
+		<result property="nTitle" column="N_TITLE" />
+		<result property="nContent" column="N_CONTENT" />
+		<result property="nCreateDate" column="N_CREATE_DATE" />
+		<result property="nCount" column="N_COUNT" />
+	</resultMap>
+	
+	<!-- 공지사항 전체조회 -->
+	<select id="selectList" resultMap="noticeResultSet">
+		SELECT *
+		FROM NOTICE
+		ORDER BY
+		N_ID DESC
+	</select>
+	
+	<!-- 공지사항 등록 -->
+	<insert id = "insertNotice" parameterType="Notice">
+		INSERT INTO NOTICE
+		VALUES(NOTICE_SEQ.NEXTVAL,'admin', #{nTitle}, 
+		#{nContent}, SYSDATE, '0')
+	</insert>
+	
+	<!-- 공지사항 상세조회 -->
+	<select id="selectOne" resultMap="noticeResultSet"
+		parameterType="_int"> 
+		SELECT * FROM NOTICE WHERE N_ID = #{nId}
+		 </select>
+	
+	 <!-- 공지사항 삭제 쿼리 -->
+   <delete id="deleteNotice" parameterType="_int">
+   	DELETE FROM NOTICE
+   	WHERE N_ID=#{nId}
+   </delete>
+   
+    <!-- 공지사항 수정 쿼리 -->
+   <update id="updateNotice" parameterType="Notice">
+	UPDATE NOTICE SET
+	N_TITLE = #{nTitle}, N_CONTENT = #{nContent}
+	WHERE N_ID = #{nId}
+	</update>
+	
+	<!-- 조회수 쿼리 -->
+	<update id="nCount" parameterType="_int">
+		UPDATE NOTICE
+		SET N_COUNT = N_COUNT + 1 
+		WHERE N_ID = #{nId}
+	</update>
+</mapper>
